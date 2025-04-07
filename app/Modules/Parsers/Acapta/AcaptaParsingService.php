@@ -20,13 +20,20 @@ class AcaptaParsingService
     public function parseOnuData(): array
     {
         $mergedData = [];
+        $fields = [];
         $onuData = $this->getOnuData();
         $onuStats = $this->getOnuStats();
         $uniqueIdentifiers = array_unique(array_merge(array_keys($onuData), array_keys($onuStats)));
         foreach ($uniqueIdentifiers as $identifier) {
-            $mergedData []= array_merge($onuData[$identifier] ?? [], $onuStats[$identifier] ?? []);
+            $onuDataValues = $onuData[$identifier] ?? [];
+            $onuStatValues = $onuStats[$identifier] ?? [];
+            $mergedData []= array_merge($onuDataValues, $onuStatValues);
+            $fields = array_unique(array_merge($fields, array_keys($onuDataValues), array_keys($onuStatValues)));
         }
-        return $mergedData;
+        return [
+            'fields' => $fields,
+            'data' => $mergedData,
+        ];
     }
 
     /**

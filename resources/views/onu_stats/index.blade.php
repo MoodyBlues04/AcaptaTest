@@ -1,3 +1,12 @@
+<?php
+/**
+ * @var array<array<string,string>> $data
+ * @var string[] $fields
+ * @var string[] $filters
+ * @var array<string,string> $sort
+ */
+?>
+
 @extends('layouts.app')
 
 @section('content')
@@ -7,24 +16,28 @@
         <div class="card">
             <div class="card-body">
                 <form method="GET" action="{{ route('onu.stats.index') }}">
+                    <div class="mt-3">
+                        <button type="submit" class="btn btn-primary">Apply Filters</button>
+                        <a href="{{ route('onu.stats.index') }}" class="btn btn-secondary">Reset Filters</a>
+                    </div>
                     <table class="table table-bordered">
                         <thead>
                         <tr>
-                            @foreach(array_keys($devices[0] ?? []) as $column)
+                            @foreach($fields as $field)
                                 <th>
                                     <div class="mb-2">
                                         <input type="text"
-                                               name="{{ $column }}"
-                                               value="{{ $filters[$column] ?? '' }}"
+                                               name="{{ $field }}"
+                                               value="{{ $filters[$field] ?? null }}"
                                                class="form-control form-control-sm"
-                                               placeholder="Filter {{ ucfirst(str_replace('_', ' ', $column)) }}">
+                                               placeholder="Filter {{ ucfirst(str_replace('_', ' ', $field)) }}">
                                     </div>
                                     <a href="{{ request()->fullUrlWithQuery([
-                                    'sort_column' => $column,
-                                    'sort_direction' => $sort['column'] === $column && $sort['direction'] === 'asc' ? 'desc' : 'asc'
+                                    'sort_column' => $field,
+                                    'sort_direction' => $sort['column'] === $field && $sort['direction'] === 'asc' ? 'desc' : 'asc'
                                 ]) }}">
-                                        {{ ucfirst(str_replace('_', ' ', $column)) }}
-                                        @if($sort['column'] === $column)
+                                        {{ ucfirst(str_replace('_', ' ', $field)) }}
+                                        @if($sort['column'] === $field)
                                             {!! $sort['direction'] === 'asc' ? '&#9650;' : '&#9660;' !!}
                                         @endif
                                     </a>
@@ -33,24 +46,15 @@
                         </tr>
                         </thead>
                         <tbody>
-                        @forelse($devices as $device)
+                        @foreach($data as $row)
                             <tr>
-                                @foreach($device as $value)
-                                    <td>{{ $value }}</td>
+                                @foreach($fields as $field)
+                                    <td>{{ $row[$field] ?? '--' }}</td>
                                 @endforeach
                             </tr>
-                        @empty
-                            <tr>
-                                <td colspan="{{ count($devices[0] ?? []) }}" class="text-center">No devices found</td>
-                            </tr>
-                        @endforelse
+                        @endforeach
                         </tbody>
                     </table>
-
-                    <div class="mt-3">
-                        <button type="submit" class="btn btn-primary">Apply Filters</button>
-                        <a href="{{ route('onu.stats.index') }}" class="btn btn-secondary">Reset Filters</a>
-                    </div>
                 </form>
             </div>
         </div>

@@ -6,6 +6,7 @@ use App\Modules\Parsers\Acapta\AcaptaParsingService;
 use GuzzleHttp\Exception\GuzzleException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\View\View;
 
 class OnuStatController extends Controller
@@ -23,11 +24,14 @@ class OnuStatController extends Controller
             return $this->service->parseOnuData();
         });
 
-        $filtered = $this->applyFilters($onuData, $request);
+        $this->saveToStorage($onuData);
+
+        $filtered = $this->applyFilters($onuData['data'], $request);
         $sorted = $this->applySorting($filtered, $request);
 
         return view('onu_stats.index', [
-            'devices' => $sorted,
+            'data' => $sorted,
+            'fields' => $onuData['fields'],
             'filters' => $request->all(),
             'sort' => [
                 'column' => $request->get('sort_column'),
@@ -36,7 +40,13 @@ class OnuStatController extends Controller
         ]);
     }
 
-    private function applyFilters($data, $request)
+    private function saveToStorage(array &$data): void
+    {
+        $fileName = 'onu_stats-' . time() . '.json';
+        Storage::put('onu_stats/' . $fileName, json_encode($data, JSON_PRETTY_PRINT));
+    }
+
+    private function applyFilters(array &$data, Request $request): array
     {
         return collect($data)->filter(function ($item) use ($request) {
             foreach ($request->all() as $key => $value) {
@@ -53,7 +63,7 @@ class OnuStatController extends Controller
         })->values()->toArray();
     }
 
-    private function applySorting($data, $request)
+    private function applySorting(array &$data, Request $request): array
     {
         $column = $request->get('sort_column');
         $direction = $request->get('sort_direction', 'asc');
