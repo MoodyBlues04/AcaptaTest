@@ -13,4 +13,4 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::get('/', \App\Http\Controllers\OnuStatController::class . '@index');
+Route::get('/', \App\Http\Controllers\OnuStatController::class . '@index')->name('onu.stats.index');

@@ -2,7 +2,7 @@
 
 namespace App\Modules\Parsers\Acapta;
 
-use App\Modules\Parsers\Acapta\ParsingResult\ParsingStrategy;
+use App\Modules\Parsers\Acapta\ParsingStrategy\ParsingStrategy;
 
 class TableParser
 {

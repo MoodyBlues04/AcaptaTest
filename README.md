@@ -6,3 +6,6 @@
 3. enjoy
 
 ## Usage
++ `./app/Modules/Api` - contains all api integration logic
++ `./app/Modules/Parsers/Acapta` - contains all parsing logic.
+  Extensibility is achieved by using a strategy pattern that abstracts away the details of the data table implementation.

@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Modules\Parsers\Acapta\ParsingResult;
+namespace App\Modules\Parsers\Acapta\ParsingStrategy;
 
 class OnuStatsParsingStrategy extends ParsingStrategy
 {
@@ -25,5 +25,10 @@ class OnuStatsParsingStrategy extends ParsingStrategy
     public function columnMarginSize(): int
     {
         return 2;
+    }
+
+    protected function identificationField(): string
+    {
+        return 'interface';
     }
 }

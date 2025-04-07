@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Modules\Parsers\Acapta\ParsingResult;
+namespace App\Modules\Parsers\Acapta\ParsingStrategy;
 
 abstract class ParsingStrategy
 {
@@ -19,13 +19,23 @@ abstract class ParsingStrategy
     public function addRow(array $row): void
     {
         $correctRow = [];
+        $identificationField = null;
         foreach ($row as $header => $value) {
             if (!$this->isValidHeader($header)) {
                 throw new \InvalidArgumentException("Invalid header: '$header'");
             }
-            $correctRow[$this->headersMapping[$header]] = $value;
+            $fieldName = $this->headersMapping[$header];
+            if ($fieldName === $this->identificationField()) {
+                $identificationField = strtolower($value);
+            }
+            $correctRow[$fieldName] = $value;
         }
-        $this->data []= $correctRow;
+
+        if ($identificationField === null) {
+            $this->data []= $correctRow;
+        } else {
+            $this->data[$identificationField] = $correctRow;
+        }
     }
 
     public function isValidHeaders(array $headers): bool
@@ -46,6 +56,7 @@ abstract class ParsingStrategy
     public abstract function columnMarginSize(): int;
     public abstract function getPrefixLinesCount(): int;
     public abstract function emptyLinePrefix(): string;
+    protected abstract function identificationField(): ?string;
 
     public function getData(): array {
         return $this->data;
