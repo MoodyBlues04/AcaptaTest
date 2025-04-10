@@ -65,14 +65,22 @@ class TableParser
     private function parseLine(): array
     {
         $line = '';
-        while (strlen($line) < $this->lineSize && $tmpLine = $this->reader->readLine()) {
+        while (strlen($line) < $this->lineSize && false !== ($tmpLine = $this->reader->readLine())) {
+            if (empty($tmpLine)) {
+                $line .= "\r\n"; // костыль для обработки пустой строки в stats
+                continue;
+            }
             if (str_contains($tmpLine, $this->parsingStrategy->emptyLinePrefix())) {
                 break;
             }
-            if (preg_match('/^.*--\s*$/', $line)) { // bug in onu stats formatting: normal values are aligned by col size, but not '--'
+            if (preg_match('/^.*active[\r\n]?$/', $line)) { // костыль для выравнивания при переносе в data
+                $tmpLine = '   ' . $tmpLine;
+            }
+            $line = trim($line) . $tmpLine;
+
+            if (preg_match('/^.*--\r?\n$/', $line)) { // bug in onu stats formatting: normal values are aligned by col size, but not '--'
                 break;
             }
-            $line .= $tmpLine;
         }
         return $this->splitLine(trim($line));
     }

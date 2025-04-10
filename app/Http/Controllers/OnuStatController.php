@@ -70,7 +70,13 @@ class OnuStatController extends Controller
 
         if ($column && array_key_exists($column, $data[0] ?? [])) {
             usort($data, function ($a, $b) use ($column, $direction) {
-                $result = $a[$column] <=> $b[$column];
+                if (!isset($a[$column]) && !isset($b[$column])) {
+                    $result = 0;
+                } else if (!isset($a[$column]) || !isset($b[$column])) {
+                    $result = !isset($a[$column]) ? -1 : 1;
+                } else {
+                    $result = $a[$column] <=> $b[$column];
+                }
                 return $direction === 'desc' ? -$result : $result;
             });
         }
